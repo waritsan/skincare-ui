@@ -68,3 +68,14 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+az staticwebapp create \
+  --name skincare-ui \
+  --resource-group ai-skincare-reccommender \
+  --location eastus2 \
+  --source https://github.com/waritsan/skincare-ui.git \
+  --branch main \
+  --app-location "." \
+  --output-location "build" \
+  --login-with-github
