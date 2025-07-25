@@ -8,10 +8,12 @@ function App() {
     age: "30",
     concern: "wrinkles",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setResult(""); // Clear previous result
+    setLoading(true);
 
     const res = await fetch("https://skincare-recommender-xyz123.azurewebsites.net/api/recommend", {
       method: "POST",
@@ -23,6 +25,7 @@ function App() {
       // Fallback for browsers without streaming support
       const data = await res.json();
       setResult(data.recommendation);
+      setLoading(false);
       return;
     }
 
@@ -41,6 +44,7 @@ function App() {
         setResult(accumulated);
       }
     }
+    setLoading(false);
   };
 
   // Helper to format the result nicely
@@ -50,7 +54,8 @@ function App() {
 
     // Try to parse JSON if needed
     try {
-      const parsed = JSON.parse(result);
+      // Remove any leading/trailing whitespace before parsing
+      const parsed = JSON.parse(result.trim());
       if (parsed && parsed.recommendation) {
         recommendationText = parsed.recommendation;
       }
@@ -58,30 +63,20 @@ function App() {
       // Not JSON, use as is
     }
 
-    // Split into product recommendations by line breaks, filter out empty lines
-    const lines = recommendationText
-      .split(/\n+/)
+    // Split into items if numbered or line breaks, else show as paragraph
+    // Handles both "1. ..." and line breaks
+    const items = recommendationText
+      .split(/\n+|\d+\.\s/)
       .map(line => line.trim())
       .filter(Boolean);
 
-    // If multiple lines, render as a styled list; else as a paragraph
-    if (lines.length > 1) {
+    if (items.length > 1) {
       return (
         <div>
           <ul style={{ paddingLeft: 20, margin: 0, listStyle: "disc" }}>
-            {lines.map((line, idx) => (
+            {items.map((item, idx) => (
               <li key={idx} style={{ marginBottom: 14, lineHeight: 1.7 }}>
-                <span style={{ fontWeight: 500, color: "#2d3a4b" }}>
-                  {line.split(" - ")[0]}
-                </span>
-                {line.includes(" - ") && (
-                  <span style={{ color: "#4f5b6b" }}>
-                    {" – " + line.split(" - ").slice(1).join(" - ")}
-                  </span>
-                )}
-                {!line.includes(" - ") && (
-                  <span style={{ color: "#4f5b6b" }}>{line}</span>
-                )}
+                {item}
               </li>
             ))}
           </ul>
@@ -151,7 +146,22 @@ function App() {
           Get Recommendation
         </button>
       </form>
-      {result && (
+      {loading && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 30 }}>
+          <div style={{
+            border: "4px solid #e3eaf2",
+            borderTop: "4px solid #4f8cff",
+            borderRadius: "50%",
+            width: 36,
+            height: 36,
+            animation: "spin 1s linear infinite"
+          }} />
+          <style>
+            {`@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`}
+          </style>
+        </div>
+      )}
+      {!loading && result && (
         <div style={{
           marginTop: 28,
           background: "#f4f8fb",
