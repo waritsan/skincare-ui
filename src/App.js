@@ -42,6 +42,40 @@ function App() {
     // setResult(accumulated);
   };
 
+  // Helper to format the result nicely
+  function renderRecommendation(result) {
+    if (!result) return null;
+    let recommendationText = result;
+
+    // Try to parse JSON if needed
+    try {
+      const parsed = JSON.parse(result);
+      if (parsed && parsed.recommendation) {
+        recommendationText = parsed.recommendation;
+      }
+    } catch {
+      // Not JSON, use as is
+    }
+
+    // Split into items if numbered list, else show as paragraph
+    const items = recommendationText.split(/\n?\d+\.\s/).filter(Boolean);
+    if (items.length > 1) {
+      return (
+        <ol style={{ paddingLeft: 20, margin: 0 }}>
+          {items.map((item, idx) => (
+            <li key={idx} style={{ marginBottom: 14, lineHeight: 1.6 }}>{item.trim()}</li>
+          ))}
+        </ol>
+      );
+    }
+    // Otherwise, show as paragraph(s)
+    return (
+      <div style={{ lineHeight: 1.7, whiteSpace: "pre-line" }}>
+        {recommendationText}
+      </div>
+    );
+  }
+
   return (
     <div style={{ maxWidth: 400, margin: "40px auto", padding: 24, borderRadius: 12, boxShadow: "0 2px 12px #eee", background: "#fafcff" }}>
       <h1 style={{ textAlign: "center", color: "#2d3a4b" }}>Skincare Recommender</h1>
@@ -98,15 +132,19 @@ function App() {
         </button>
       </form>
       {result && (
-        <pre style={{
+        <div style={{
           marginTop: 28,
           background: "#f4f8fb",
           padding: 16,
           borderRadius: 8,
           color: "#2d3a4b",
           fontSize: 15,
-          whiteSpace: "pre-wrap"
-        }}>{result}</pre>
+          whiteSpace: "normal",
+          boxShadow: "0 1px 4px #e3eaf2"
+        }}>
+          <div style={{ fontWeight: 600, marginBottom: 10, color: "#4f8cff" }}>Your Recommendation:</div>
+          {renderRecommendation(result)}
+        </div>
       )}
     </div>
   );
