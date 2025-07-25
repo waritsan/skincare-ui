@@ -11,13 +11,31 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setResult(""); // Clear previous result
+
     const res = await fetch("https://skincare-recommender-xyz123.azurewebsites.net/api/recommend", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(inputs),
     });
-    const data = await res.json();
-    setResult(data.recommendation);
+
+    if (!res.body || !window.ReadableStream) {
+      // Fallback for browsers without streaming support
+      const data = await res.json();
+      setResult(data.recommendation);
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let accumulated = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      accumulated += decoder.decode(value, { stream: true });
+      setResult(accumulated);
+    }
   };
 
   return (
