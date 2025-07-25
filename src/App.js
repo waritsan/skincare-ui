@@ -33,9 +33,13 @@ function App() {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      accumulated += decoder.decode(value, { stream: true });
+      const chunk = decoder.decode(value, { stream: true });
+      accumulated += chunk;
       setResult(accumulated);
     }
+
+    // Optionally, ensure the last chunk is flushed
+    // setResult(accumulated);
   };
 
   return (
