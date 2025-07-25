@@ -58,20 +58,39 @@ function App() {
       // Not JSON, use as is
     }
 
-    // Split into items if numbered list, else show as paragraph
-    const items = recommendationText.split(/\n?\d+\.\s/).filter(Boolean);
-    if (items.length > 1) {
+    // Split into product recommendations by line breaks, filter out empty lines
+    const lines = recommendationText
+      .split(/\n+/)
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    // If multiple lines, render as a styled list; else as a paragraph
+    if (lines.length > 1) {
       return (
-        <ol style={{ paddingLeft: 20, margin: 0 }}>
-          {items.map((item, idx) => (
-            <li key={idx} style={{ marginBottom: 14, lineHeight: 1.6 }}>{item.trim()}</li>
-          ))}
-        </ol>
+        <div>
+          <ul style={{ paddingLeft: 20, margin: 0, listStyle: "disc" }}>
+            {lines.map((line, idx) => (
+              <li key={idx} style={{ marginBottom: 14, lineHeight: 1.7 }}>
+                <span style={{ fontWeight: 500, color: "#2d3a4b" }}>
+                  {line.split(" - ")[0]}
+                </span>
+                {line.includes(" - ") && (
+                  <span style={{ color: "#4f5b6b" }}>
+                    {" – " + line.split(" - ").slice(1).join(" - ")}
+                  </span>
+                )}
+                {!line.includes(" - ") && (
+                  <span style={{ color: "#4f5b6b" }}>{line}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       );
     }
     // Otherwise, show as paragraph(s)
     return (
-      <div style={{ lineHeight: 1.7, whiteSpace: "pre-line" }}>
+      <div style={{ lineHeight: 1.7, whiteSpace: "pre-line", color: "#2d3a4b" }}>
         {recommendationText}
       </div>
     );
