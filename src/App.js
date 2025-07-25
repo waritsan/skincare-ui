@@ -30,16 +30,17 @@ function App() {
     const decoder = new TextDecoder();
     let accumulated = "";
 
+    // Stream output token-by-token (character-by-character)
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
       const chunk = decoder.decode(value, { stream: true });
-      accumulated += chunk;
-      setResult(accumulated);
+      // Update result as soon as a new token (character) arrives
+      for (let i = 0; i < chunk.length; i++) {
+        accumulated += chunk[i];
+        setResult(accumulated);
+      }
     }
-
-    // Optionally, ensure the last chunk is flushed
-    // setResult(accumulated);
   };
 
   // Helper to format the result nicely
